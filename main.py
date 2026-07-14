@@ -20,8 +20,8 @@ GROQ_PROMPT_SYSTEM = {
 }
 
 
-def extract_cv(file_path: str, doc_type: str = "pdf"):
-    if doc_type == "pdf":
+def extract_cv(file_path: str):
+    if file_path.endswith(".pdf"):
         return pymupdf4llm.to_markdown(file_path)
     else:
         return extract_file_txt(file_path)
@@ -89,12 +89,6 @@ def main():
     )
     group = parser.add_mutually_exclusive_group(required=True)
     parser.add_argument("path_to_cv")
-    parser.add_argument(
-        "-mk",
-        "--markdown",
-        help="specifie if the resumer is in markdown",
-        action="store_true",
-    )
     group.add_argument("-f", "--file", help="specifie the job resume path")
     group.add_argument("-b", "--bulk", help="Process a bulk generation")
 
