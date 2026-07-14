@@ -41,8 +41,8 @@ def process_job(cv_text: str, job_path: str):
 
 
 def process_bulk_job(cv_text: str, job_folder_path: str):
-    for f in os.listdir(job_folder_path):
-        process_job(cv_text, os.path.join(job_folder_path, f))
+    for f in glob.glob(os.path.join(job_folder_path, "*.txt")):
+        process_job(cv_text, f)
 
 
 def perform_doc_modification(job: str, doc_type: str, cv: str | None = None):
