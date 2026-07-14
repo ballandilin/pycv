@@ -1,0 +1,1 @@
+pycv v1.0 : prend un CV (markdown ou PDF) et une description de poste (fichier texte), appelle Groq, écrit cv_adapte.md et lettre.md à côté de la description. Le mode -b dossier fait la même chose pour chaque fichier du dossier.
