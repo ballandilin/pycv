@@ -4,8 +4,8 @@ from groq import Groq
 import argparse
 import os
 from dotenv import load_dotenv
-import time
 import glob
+import shutil
 
 load_dotenv()
 
@@ -36,7 +36,8 @@ def extract_file_txt(file_path: str):
 def process_job(cv_text: str, job_path: str):
     job = extract_file_txt(job_path)
     cv_adapte = perform_doc_modification(job, "cv", cv_text)
-    perform_doc_modification(job, "letter", cv_adapte)
+    letter = perform_doc_modification(job, "letter", cv_adapte)
+    save_outputs(job_path, cv_adapte, letter)
 
 
 def process_bulk_job(cv_text: str, job_folder_path: str):
@@ -64,15 +65,18 @@ def perform_doc_modification(job: str, doc_type: str, cv: str | None = None):
         temperature=0.35,
         model="llama-3.3-70b-versatile",
     )
-    save_file(chat_completion.choices[0].message.content, doc_type)
     return chat_completion.choices[0].message.content
 
 
-def save_file(chat_result: str, doc_type: str):
-    print(chat_result)
-    os.makedirs("results", exist_ok=True)
-    with open(f"./results/{doc_type}_{time.asctime().replace(' ', '_')}.md", "w") as f:
-        f.write(chat_result)
+def save_outputs(job_path: str, cv: str, letter: str):
+    job_name = os.path.splitext(os.path.basename(job_path))[0]
+    out_dir = os.path.join("results", job_name)
+    os.makedirs(out_dir, exist_ok=True)
+    shutil.copy(job_path, os.path.join(out_dir, "offre.txt"))
+    with open(os.path.join(out_dir, "cv.md"), "w") as f:
+        f.write(cv)
+    with open(os.path.join(out_dir, "lettre.md"), "w") as f:
+        f.write(letter)
 
 
 def main():
