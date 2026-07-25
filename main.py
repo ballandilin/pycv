@@ -6,18 +6,24 @@ import os
 from dotenv import load_dotenv
 import glob
 import shutil
+import config as config_loader
 
 load_dotenv()
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-GROQ_PROMPT_USER = {
-    "cv": "Réorganise et reformule uniquement le contenu du CV fourni, n'invente aucune expérience, compétence ou chiffre absent de l'original par rapport a la demande de poste suivante {job} et voici mon cv {cv}.",
-    "letter": "Genere une lettre de motivation en accord avec le CV et la demande de poste, n'invente aucune expérience, compétence ou chiffre absent du CV que voici {cv}. Voici la demande de poste {job}",
-}
-GROQ_PROMPT_SYSTEM = {
-    "cv": "Repond uniquement avec le document en markdown, sans preambule ni commentaire, en francais",
-    "letter": "Repond uniquement avec le document en markdown, sans preambule ni commentaire. Format lettre classique sans aucun titre markdown, 250 a 300 mots maximum, francais irreprochable, ne pas lister les technologies, choisir deux ou trois experiences pertinentes pour l'offre et les developper, ton sobre, interdiction des formules creuses",
-}
+PROMPTS = config_loader.load_config()
+
+GROQ_PROMPT_SYSTEM = PROMPTS["cv"]["system"]
+GROQ_PROMPT_USER = PROMPTS["cv"]["user"]
+GROQ_PROMPT_SYSTEM_LETTER = PROMPTS["letter"]["system"]
+GROQ_PROMPT_USER_LETTER = PROMPTS["letter"]["user"]
+
+
+def build_groq_prompt(kind: str, cv: str, job: str) -> str:
+    if kind == "cv":
+        return GROQ_PROMPT_USER.format(cv=cv, job=job)
+    else:
+        return GROQ_PROMPT_USER_LETTER.format(cv=cv, job=job)
 
 
 def extract_cv(file_path: str):
@@ -53,17 +59,15 @@ def perform_doc_modification(job: str, doc_type: str, cv: str | None = None):
         print("Modification de votre lettre de motivation")
     chat_completion = client.chat.completions.create(
         messages=[
-            {"role": "system", "content": GROQ_PROMPT_SYSTEM[doc_type]},
+            {"role": "system", "content": PROMPTS[doc_type]["system"]},
             {
                 "role": "user",
-                "content": GROQ_PROMPT_USER[doc_type].format(
-                    job=job,
-                    cv=cv,
-                ),
+                "content": build_groq_prompt(doc_type, cv, job),
             },
         ],
-        temperature=0.35,
-        model="llama-3.3-70b-versatile",
+        temperature=PROMPTS[doc_type]["temperature"],
+        model=PROMPTS["model"]["name"],
+        max_tokens=PROMPTS["model"]["max_tokens"],
     )
     return chat_completion.choices[0].message.content
 
