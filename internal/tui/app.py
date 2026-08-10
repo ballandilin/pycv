@@ -35,7 +35,7 @@ class Header(Center):
         height: auto;
         width: auto;
         dock: top;
-        color: $success
+        color: $success;
         }
         """
 
