@@ -49,7 +49,6 @@ class JobListItem(ListItem):
     DEFAULT_CSS = """
     JobListItem {
         height: 4;
-        padding: 0 1;
     }
     JobListItem > Horizontal {
         height: 100%;
@@ -152,3 +151,4 @@ class JobListItem(ListItem):
         if offer.tags:
             text.append("  " + " ".join(f"#{t}" for t in offer.tags), style="cyan dim")
         return text
+

@@ -3,14 +3,11 @@ from internal.tui.jobList import JobListItem, JobOffer
 from textual.app import App, ComposeResult
 from textual.widgets import (
     Footer,
-    # Header,
     MarkdownViewer,
     ListView,
-    ListItem,
     Label,
-    Static,
 )
-from textual.containers import Center
+from textual.containers import Center, Horizontal, Vertical
 from textual.screen import Screen
 
 
@@ -62,14 +59,24 @@ class PyCV(App):
 
     def compose(self) -> ComposeResult:
         yield Header()
-        yield ListView(*(JobListItem(o) for o in self.offers), classes="box")
-        yield MarkdownViewer(
-            markdown=open_md_file(),
-            name="Markdown viewer",
-            show_table_of_contents=False,
-            classes="box",
-        )
+        with Horizontal(id="main"):
+            yield ListView(
+                *(JobListItem(o) for o in self.offers),
+                id="jobs",
+                classes="box",
+            )
+            yield MarkdownViewer(
+                markdown=open_md_file(),
+                show_table_of_contents=False,
+                id="preview",
+                classes="box",
+            )
         yield Footer()
+
+    def on_list_view_selected(self, event: ListView.Selected) -> None:
+        item = event.item
+        if isinstance(item, JobListItem) and item.offer:
+            self.notify(f"Selected : {item.offer.title}")
 
     def action_regen(self) -> None:
         lv = self.query_one("#jobs", ListView)
