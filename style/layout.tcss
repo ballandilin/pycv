@@ -12,6 +12,7 @@ Screen {
 
 #jobs {
     width: 25%;
+    min-width: 36;
     height: 1fr;
     border: solid green;
 }

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from datetime import datetime
+
 from internal.models.jobOffer import JobOffer
 
 from rich.text import Text
@@ -8,39 +10,47 @@ from textual.reactive import reactive
 from textual.widgets import ListItem, Static
 
 
+def _age(when: datetime) -> str:
+    """Âge court : la date absolue ne tient pas dans 29 colonnes."""
+    seconds = max(0.0, (datetime.now() - when).total_seconds())
+    if seconds < 3600:
+        return f"{int(seconds // 60)}min"
+    if seconds < 86400:
+        return f"{int(seconds // 3600)}h"
+    return f"{int(seconds // 86400)}j"
+
+
 class JobListItem(ListItem):
     """Item d'offre d'emploi pour un ListView pycv."""
 
     DEFAULT_CSS = """
     JobListItem {
-        height: 5;
+        height: 4;
         layout: grid;
-        grid-size: 3 2;
-        grid-columns: 4 1fr 18;
+        grid-size: 2 3;
+        grid-columns: 4 1fr;
         grid-rows: 1 1 1;
-        padding: 0 1 1 1;
+        padding: 0 1 1 0;
     }
 
     #icon {
-        content-align: left bottom;
+        row-span: 3;
+        content-align: center top;
     }
 
     #title {
-        column-span: 2;
         text-style: bold;
-        content-align: left middle;
+        text-wrap: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    #meta, #badges {
+        text-wrap: nowrap;
+        text-overflow: ellipsis;
     }
 
     #meta {
-        column-span: 4;
         color: $text-muted;
-        content-align: left middle;
-    }
-
-    #badges {
-        row-span: 2;
-        dock: bottom;
-        content-align: center bottom;
     }
 
     JobListItem.-done    #icon { color: $success; }
@@ -94,18 +104,17 @@ class JobListItem(ListItem):
         self.tooltip = str(offer.source)
 
     def _subtitle(self, offer: JobOffer) -> Text:
-        parts: list[str] = []
-        if offer.company:
-            parts.append(offer.company)
-        parts.append(offer.source.name)
+        # le chemin complet reste dans le tooltip : ici on garde ce qui
+        # distingue l'offre, pas ce qui remplit la ligne
+        parts: list[str] = [offer.company or offer.source.name]
         if offer.generated_at:
-            parts.append(offer.generated_at.strftime("%d/%m %H:%M"))
+            parts.append(_age(offer.generated_at))
         if offer.tokens:
             parts.append(f"{offer.tokens:,} tok".replace(",", " "))
         return Text(" · ".join(parts), overflow="ellipsis", no_wrap=True)
 
     def _badges(self, offer: JobOffer) -> Text:
-        text = Text()
+        text = Text(overflow="ellipsis", no_wrap=True)
         text.append("CV ", style="dim")
         text.append(
             "✓" if offer.has_cv else "✗",
