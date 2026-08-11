@@ -2,10 +2,8 @@ Screen {
     layout: vertical;
 }
 
-Header {
-    height: auto;
-    dock: top;
-    color: $success;
+Screen {
+    layout: vertical;
 }
 
 #main {
@@ -22,9 +20,4 @@ Header {
     width: 1fr;
     height: 1fr;
     border: solid $primary;
-}
-
-JobListItem {
-    height: 3;
-    padding: 0 1;
 }

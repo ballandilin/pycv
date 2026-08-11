@@ -1,5 +1,6 @@
 import datetime
 from internal.tui.jobList import JobListItem, JobOffer
+from internal.tui.screens.addOffer import AddOfferScreen
 from textual.app import App, ComposeResult
 from textual.widgets import (
     Footer,
@@ -45,10 +46,10 @@ class Header(Center):
 
 class PyCV(App):
     BINDINGS = [
-        ("g", "generate", "Generate"),
         ("r", "regen", "Regenerate"),
         ("o", "open", "Open"),
         ("d", "diff", "Diff CV"),
+        ("a", "add", "Add Offer"),
     ]
 
     CSS_PATH = "../../style/layout.tcss"
@@ -78,14 +79,24 @@ class PyCV(App):
         if isinstance(item, JobListItem) and item.offer:
             self.notify(f"Selected : {item.offer.title}")
 
+    def action_add(self) -> None:
+        def on_close(offer: JobOffer | None) -> None:
+            if offer is None:
+                return
+            self.offers.append(offer)
+            self.query_one("#jobs", ListView).append(JobListItem(offer))
+
+        self.push_screen(AddOfferScreen(), on_close)
+
+    def action_open(self) -> None:
+        pass
+
     def action_regen(self) -> None:
         lv = self.query_one("#jobs", ListView)
         item = lv.highlighted_child
         if isinstance(item, JobListItem) and item.offer:
+            self.notify(f"Regenerate document for : {item.offer.title}")
             offer = item.offer
             offer.generated_at = datetime.datetime.now()
             item.offer = offer
             item.mutate_reactive(JobListItem.offer)
-
-    # def on_ready(self) -> None:
-    #    self.push_screen(BaseScreen())
