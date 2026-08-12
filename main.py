@@ -6,7 +6,7 @@ from internal.models.jobOffer import JobOffer
 
 def main():
     job_offer_list = []
-    PyCV(MOCK_OFFERS).run()
+    PyCV(job_offer_list).run()
 
 
 if __name__ == "__main__":

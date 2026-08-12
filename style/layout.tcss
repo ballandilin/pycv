@@ -2,9 +2,6 @@ Screen {
     layout: vertical;
 }
 
-Screen {
-    layout: vertical;
-}
 
 #main {
     height: 1fr;

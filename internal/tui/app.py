@@ -2,12 +2,9 @@ import datetime
 from internal.tui.jobList import JobListItem, JobOffer
 from internal.tui.screens.addOffer import AddOfferScreen
 from textual.app import App, ComposeResult
-from textual.widgets import (
-    Footer,
-    MarkdownViewer,
-    ListView,
-    Label,
-)
+from textual.widgets import Footer, MarkdownViewer, ListView, Label, Static
+from textual.widget import Widget
+from textual.reactive import reactive
 from textual.containers import Center, Horizontal, Vertical
 from textual.screen import Screen
 
@@ -44,6 +41,24 @@ class Header(Center):
         yield Label(LOGO_ASCII, id="Header", markup=False)
 
 
+class MarkdownViewerWidget(Widget):
+    job_content: reactive[str] = reactive("../../", recompose=True)
+
+    def __init__(self) -> None:
+        super().__init__()
+
+    def compose(self) -> ComposeResult:
+        yield MarkdownViewer(
+            markdown=self.job_content,
+            show_table_of_contents=False,
+            id="preview",
+            classes="box",
+        )
+
+        # def watch_job_content(self, source: str) -> None:
+        # self.query_one(MarkdownViewer).document.update(source)
+
+
 class PyCV(App):
     BINDINGS = [
         ("r", "regen", "Regenerate"),
@@ -60,24 +75,23 @@ class PyCV(App):
 
     def compose(self) -> ComposeResult:
         yield Header()
-        with Horizontal(id="main"):
-            yield ListView(
-                *(JobListItem(o) for o in self.offers),
-                id="jobs",
-                classes="box",
-            )
-            yield MarkdownViewer(
-                markdown=open_md_file(),
-                show_table_of_contents=False,
-                id="preview",
-                classes="box",
-            )
-        yield Footer()
+        if len(self.offers) == 0:
+            yield Static("Add new job offer ...", classes="box")
+        else:
+            with Horizontal(id="main"):
+                yield ListView(
+                    *(JobListItem(o) for o in self.offers),
+                    id="jobs",
+                    classes="box",
+                )
+                yield MarkdownViewerWidget()
+                yield Footer()
 
     def on_list_view_selected(self, event: ListView.Selected) -> None:
         item = event.item
         if isinstance(item, JobListItem) and item.offer:
             self.notify(f"Selected : {item.offer.title}")
+            self.query_one(MarkdownViewerWidget).job_content = str(item.offer.source)
 
     def action_add(self) -> None:
         def on_close(offer: JobOffer | None) -> None:
