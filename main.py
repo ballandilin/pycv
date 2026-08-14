@@ -1,13 +1,13 @@
 import sys
 
-import cmd
+import cli
 from internal.mock import MOCK_OFFERS
 from internal.tui.app import PyCV
 
 
 def main():
     if len(sys.argv) > 1:
-        cmd.main()
+        cli.main()
     else:
         PyCV(MOCK_OFFERS).run()
 

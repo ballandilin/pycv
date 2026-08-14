@@ -4,11 +4,6 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 
-from rich.text import Text
-from textual.app import ComposeResult
-from textual.reactive import reactive
-from textual.widgets import ListItem, Static
-
 
 @dataclass
 class JobOffer:
