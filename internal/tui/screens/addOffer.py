@@ -8,13 +8,6 @@ from textual.widgets import Button, Input, Label
 
 
 class AddOfferScreen(ModalScreen[JobOffer | None]):
-    """Saisie d'une nouvelle offre.
-
-    Seuls les champs renseignés par l'utilisateur : les autres
-    (cv_path, letter_path, generated_at, tokens, drift_flag) sont
-    produits par la génération.
-    """
-
     CSS_PATH = "../../../style/add_offer_modal.tcss"
 
     def compose(self) -> ComposeResult:

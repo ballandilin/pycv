@@ -11,7 +11,6 @@ from textual.widgets import ListItem, Static
 
 
 def _age(when: datetime) -> str:
-    """Âge court : la date absolue ne tient pas dans 29 colonnes."""
     seconds = max(0.0, (datetime.now() - when).total_seconds())
     if seconds < 3600:
         return f"{int(seconds // 60)}min"
@@ -21,8 +20,6 @@ def _age(when: datetime) -> str:
 
 
 class JobListItem(ListItem):
-    """Item d'offre d'emploi pour un ListView pycv."""
-
     DEFAULT_CSS = """
     JobListItem {
         height: 4;

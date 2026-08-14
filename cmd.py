@@ -1,92 +1,91 @@
-import sys
-import pymupdf4llm
-from groq import Groq
 import argparse
-import os
-from dotenv import load_dotenv
 import glob
+import os
 import shutil
+import sys
+from typing import Callable
+
+import pymupdf4llm
+from dotenv import load_dotenv
+from groq import Groq
+
 import config as config_loader
 
 load_dotenv()
 
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-PROMPTS = config_loader.load_config()
 
-GROQ_PROMPT_SYSTEM = PROMPTS["cv"]["system"]
-GROQ_PROMPT_USER = PROMPTS["cv"]["user"]
-GROQ_PROMPT_SYSTEM_LETTER = PROMPTS["letter"]["system"]
-GROQ_PROMPT_USER_LETTER = PROMPTS["letter"]["user"]
+class CvGenerator:
+    def __init__(
+        self,
+        api_key: str | None = None,
+        prompts: dict | None = None,
+        on_status: Callable[[str], None] | None = None,
+    ) -> None:
+        self.api_key = api_key or os.getenv("GROQ_API_KEY")
+        if not self.api_key:
+            raise RuntimeError("GROQ_API_KEY manquante")
+        self.prompts = prompts or config_loader.load_config()
+        self.client = Groq(api_key=self.api_key)
+        self.on_status = on_status or (lambda msg: None)
+
+    def build_groq_prompt(self, kind: str, cv: str, job: str) -> str:
+        return self.prompts[kind]["user"].format(cv=cv, job=job)
+
+    def extract_cv(self, file_path: str) -> str:
+        if file_path.endswith(".pdf"):
+            return pymupdf4llm.to_markdown(file_path)
+        return self.extract_file_txt(file_path)
+
+    @staticmethod
+    def extract_file_txt(file_path: str) -> str:
+        with open(file_path, "r") as f:
+            return f.read()
+
+    def perform_doc_modification(self, job: str, doc_type: str, cv: str) -> str:
+        if doc_type == "cv":
+            self.on_status("Modification de votre cv")
+        else:
+            self.on_status("Modification de votre lettre de motivation")
+        chat_completion = self.client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": self.prompts[doc_type]["system"]},
+                {
+                    "role": "user",
+                    "content": self.build_groq_prompt(doc_type, cv, job),
+                },
+            ],
+            temperature=self.prompts[doc_type]["temperature"],
+            model=self.prompts["model"]["name"],
+            max_tokens=self.prompts["model"]["max_tokens"],
+        )
+        return chat_completion.choices[0].message.content
+
+    def process_job(self, cv_text: str, job_path: str) -> str:
+        job = self.extract_file_txt(job_path)
+        cv_adapte = self.perform_doc_modification(job, "cv", cv_text)
+        letter = self.perform_doc_modification(job, "letter", cv_adapte)
+        return self.save_outputs(job_path, cv_adapte, letter)
+
+    def process_bulk_job(self, cv_text: str, job_folder_path: str) -> list[str]:
+        return [
+            self.process_job(cv_text, f)
+            for f in glob.glob(os.path.join(job_folder_path, "*.txt"))
+        ]
+
+    @staticmethod
+    def save_outputs(job_path: str, cv: str, letter: str) -> str:
+        job_name = os.path.splitext(os.path.basename(job_path))[0]
+        out_dir = os.path.join("results", job_name)
+        os.makedirs(out_dir, exist_ok=True)
+        shutil.copy(job_path, os.path.join(out_dir, "offre.txt"))
+        with open(os.path.join(out_dir, "cv.md"), "w") as f:
+            f.write(cv)
+        with open(os.path.join(out_dir, "lettre.md"), "w") as f:
+            f.write(letter)
+        return out_dir
 
 
-def build_groq_prompt(kind: str, cv: str, job: str) -> str:
-    if kind == "cv":
-        return GROQ_PROMPT_USER.format(cv=cv, job=job)
-    else:
-        return GROQ_PROMPT_USER_LETTER.format(cv=cv, job=job)
-
-
-def extract_cv(file_path: str):
-    if file_path.endswith(".pdf"):
-        return pymupdf4llm.to_markdown(file_path)
-    else:
-        return extract_file_txt(file_path)
-
-
-def extract_file_txt(file_path: str):
-    with open(file_path, "r") as f:
-        file_extract = f.read()
-    return file_extract
-
-
-def process_job(cv_text: str, job_path: str):
-    job = extract_file_txt(job_path)
-    cv_adapte = perform_doc_modification(job, "cv", cv_text)
-    letter = perform_doc_modification(job, "letter", cv_adapte)
-    save_outputs(job_path, cv_adapte, letter)
-
-
-def process_bulk_job(cv_text: str, job_folder_path: str):
-    for f in glob.glob(os.path.join(job_folder_path, "*.txt")):
-        process_job(cv_text, f)
-
-
-def perform_doc_modification(job: str, doc_type: str, cv: str | None = None):
-    client = Groq(api_key=GROQ_API_KEY)
-    if doc_type == "cv":
-        print("Modification de votre cv")
-    else:
-        print("Modification de votre lettre de motivation")
-    chat_completion = client.chat.completions.create(
-        messages=[
-            {"role": "system", "content": PROMPTS[doc_type]["system"]},
-            {
-                "role": "user",
-                "content": build_groq_prompt(doc_type, cv, job),
-            },
-        ],
-        temperature=PROMPTS[doc_type]["temperature"],
-        model=PROMPTS["model"]["name"],
-        max_tokens=PROMPTS["model"]["max_tokens"],
-    )
-    return chat_completion.choices[0].message.content
-
-
-def save_outputs(job_path: str, cv: str, letter: str):
-    job_name = os.path.splitext(os.path.basename(job_path))[0]
-    out_dir = os.path.join("results", job_name)
-    os.makedirs(out_dir, exist_ok=True)
-    shutil.copy(job_path, os.path.join(out_dir, "offre.txt"))
-    with open(os.path.join(out_dir, "cv.md"), "w") as f:
-        f.write(cv)
-    with open(os.path.join(out_dir, "lettre.md"), "w") as f:
-        f.write(letter)
-
-
-def main():
-    if not GROQ_API_KEY:
-        sys.exit("GROQ_API_KEY manquante")
-
+def main(argv: list[str] | None = None):
     parser = argparse.ArgumentParser(
         prog="pycv",
         description="Ask an llm to optimise your cv and cover letter for a specific job",
@@ -96,15 +95,19 @@ def main():
     group.add_argument("-f", "--file", help="specifie the job resume path")
     group.add_argument("-b", "--bulk", help="Process a bulk generation")
 
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
+
+    try:
+        generator = CvGenerator(on_status=print)
+    except RuntimeError as exc:
+        sys.exit(str(exc))
 
     if args.file and os.path.exists(args.file):
-        process_job(extract_cv(args.path_to_cv), args.file)
+        generator.process_job(generator.extract_cv(args.path_to_cv), args.file)
     elif args.bulk and os.path.isdir(args.bulk):
-        process_bulk_job(extract_cv(args.path_to_cv), args.bulk)
+        generator.process_bulk_job(generator.extract_cv(args.path_to_cv), args.bulk)
     else:
         print("Path does not exist")
-        return
 
 
 if __name__ == "__main__":
