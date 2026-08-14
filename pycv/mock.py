@@ -3,7 +3,7 @@ from __future__ import annotations
 import random
 from datetime import datetime, timedelta
 from pathlib import Path
-from internal.models.jobOffer import JobOffer
+from pycv.models import JobOffer
 
 
 BASE = Path("~/dev/pycv/offres").expanduser()

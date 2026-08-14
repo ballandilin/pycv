@@ -1,8 +1,8 @@
 import sys
 
-import cli
-from internal.mock import MOCK_OFFERS
-from internal.tui.app import PyCV
+from pycv import cli
+from pycv.mock import MOCK_OFFERS
+from pycv.tui.app import PyCV
 
 
 def main():

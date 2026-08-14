@@ -12,7 +12,7 @@
 
 **Adapte ton CV et génère ta lettre de motivation à partir d'une offre d'emploi.**
 
-[![Python](https://img.shields.io/badge/python-3.11%2B-blue?logo=python&logoColor=white)](https://www.python.org/)
+[![Python](https://img.shields.io/badge/python-3.14%2B-blue?logo=python&logoColor=white)](https://www.python.org/)
 [![Groq](https://img.shields.io/badge/LLM-Groq-orange)](https://groq.com/)
 [![Textual](https://img.shields.io/badge/TUI-Textual-5f43e9)](https://textual.textualize.io/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)

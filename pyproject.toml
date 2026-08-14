@@ -11,3 +11,10 @@ dependencies = [
     "textual>=8.2.8",
     "textual-dev>=1.8.0",
 ]
+
+[project.scripts]
+pycv = "pycv.__main__:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

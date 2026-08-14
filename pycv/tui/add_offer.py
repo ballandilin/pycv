@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from internal.models.jobOffer import JobOffer
+from pycv.models import JobOffer
 from textual.app import ComposeResult
 from textual.containers import Grid
 from textual.screen import ModalScreen
@@ -8,7 +8,7 @@ from textual.widgets import Button, Input, Label
 
 
 class AddOfferScreen(ModalScreen[JobOffer | None]):
-    CSS_PATH = "../../../style/add_offer_modal.tcss"
+    CSS_PATH = "../../style/add_offer_modal.tcss"
 
     def compose(self) -> ComposeResult:
         yield Grid(
