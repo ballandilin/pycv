@@ -1,8 +1,8 @@
 import datetime
 from os import path
-from pycv.models import JobOffer
-from pycv.tui.add_offer import AddOfferScreen
-from pycv.tui.joblist import JobListItem
+from pyresume.models import JobOffer
+from pyresume.tui.add_offer import AddOfferScreen
+from pyresume.tui.joblist import JobListItem
 from textual.app import App, ComposeResult
 from textual.widgets import Footer, MarkdownViewer, ListView, Label, Static
 from textual.widget import Widget
@@ -62,7 +62,7 @@ class MarkdownViewerWidget(Widget):
         # self.query_one(MarkdownViewer).document.update(source)
 
 
-class PyCV(App):
+class PyResume(App):
     BINDINGS = [
         ("g", "gen", "Generate"),
         ("o", "open", "Open"),

@@ -7,7 +7,7 @@ from pathlib import Path
 
 @dataclass
 class JobOffer:
-    """Modèle de données d'une offre traitée par pycv."""
+    """Modèle de données d'une offre traitée par pyresume."""
 
     title: str
     source: Path

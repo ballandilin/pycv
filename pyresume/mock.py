@@ -3,10 +3,10 @@ from __future__ import annotations
 import random
 from datetime import datetime, timedelta
 from pathlib import Path
-from pycv.models import JobOffer
+from pyresume.models import JobOffer
 
 
-BASE = Path("~/dev/pycv/offres").expanduser()
+BASE = Path("~/dev/pyresume/offres").expanduser()
 
 
 def _dt(days: float = 0, hours: float = 0) -> datetime:

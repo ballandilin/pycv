@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from pycv.models import JobOffer
+from pyresume.models import JobOffer
 
 from rich.text import Text
 from textual.app import ComposeResult

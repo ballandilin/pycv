@@ -9,7 +9,7 @@ import pymupdf4llm
 from dotenv import load_dotenv
 from groq import Groq
 
-from pycv import config as config_loader
+from pyresume import config as config_loader
 
 load_dotenv()
 
@@ -87,7 +87,7 @@ class CvGenerator:
 
 def main(argv: list[str] | None = None):
     parser = argparse.ArgumentParser(
-        prog="pycv",
+        prog="pyresume",
         description="Ask an llm to optimise your cv and cover letter for a specific job",
     )
     group = parser.add_mutually_exclusive_group(required=True)

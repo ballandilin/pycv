@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from pycv.models import JobOffer
+from pyresume.models import JobOffer
 from textual.app import ComposeResult
 from textual.containers import Grid
 from textual.screen import ModalScreen

@@ -577,27 +577,6 @@ wheels = [
 ]
 
 [[package]]
-name = "pycv"
-version = "0.1.0"
-source = { editable = "." }
-dependencies = [
-    { name = "groq" },
-    { name = "pymupdf4llm" },
-    { name = "python-dotenv" },
-    { name = "textual" },
-    { name = "textual-dev" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "groq", specifier = ">=1.5.0" },
-    { name = "pymupdf4llm", specifier = ">=1.28.0" },
-    { name = "python-dotenv", specifier = ">=1.2.2" },
-    { name = "textual", specifier = ">=8.2.8" },
-    { name = "textual-dev", specifier = ">=1.8.0" },
-]
-
-[[package]]
 name = "pydantic"
 version = "2.13.4"
 source = { registry = "https://pypi.org/simple" }
@@ -710,6 +689,27 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/cb/15/36ff769451f5e62cbca89c3b59739e625565df7140778bd6dd11db32caea/pymupdf4llm-1.28.0.tar.gz", hash = "sha256:713595be867f7cb52893e57aa1b058d5721d017b2ba7b6a3d185a05e15978852", size = 2072657, upload-time = "2026-06-29T09:08:52.23Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/e8/1a/8b997bbeeaf63286d7179fe4cdc29dcc328105f2558f01394370dc0fcaa9/pymupdf4llm-1.28.0-py3-none-any.whl", hash = "sha256:6e74e8666806cc6040d9159053130f0761d21ef17e2a9c938df8108f15160cb3", size = 164656, upload-time = "2026-06-29T09:05:11.914Z" },
+]
+
+[[package]]
+name = "pyresume"
+version = "0.1.0"
+source = { editable = "." }
+dependencies = [
+    { name = "groq" },
+    { name = "pymupdf4llm" },
+    { name = "python-dotenv" },
+    { name = "textual" },
+    { name = "textual-dev" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "groq", specifier = ">=1.5.0" },
+    { name = "pymupdf4llm", specifier = ">=1.28.0" },
+    { name = "python-dotenv", specifier = ">=1.2.2" },
+    { name = "textual", specifier = ">=8.2.8" },
+    { name = "textual-dev", specifier = ">=1.8.0" },
 ]
 
 [[package]]
